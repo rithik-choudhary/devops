@@ -1,7 +1,3 @@
-module "aws_task_defination" {
-  source = "/" # Current directory
-}
-
 data "aws_ecs_cluster" "qa_cluster" {
   cluster_name = var.qa_cluster# Name of your existing ECS cluster
 }
