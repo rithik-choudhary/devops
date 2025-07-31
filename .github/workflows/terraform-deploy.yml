@@ -97,6 +97,7 @@ jobs:
 
     - name: Create Terraform Variables File
       run: |
+        mkdir -p devops/AWS_Service
         cat > devops/AWS_Service/terraform.tfvars << EOF
         qa_cluster = "${{ env.CLUSTER_NAME }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
