@@ -21,6 +21,12 @@ data "aws_lb" "qa_application_lb" {
   name = var.qa_application_lb
 }
 
+# Get the existing HTTPS listener
+data "aws_lb_listener" "existing_listener" {
+  load_balancer_arn = data.aws_lb.qa_application_lb.arn
+  port              = 443
+}
+
 # Create target group
 resource "aws_lb_target_group" "qa_target_groups" {
   name        = var.target_group
@@ -46,25 +52,9 @@ resource "aws_lb_target_group" "qa_target_groups" {
   }
 }
 
-# Create listener with host-based routing
-resource "aws_lb_listener" "qa_lb_listener" {
-  load_balancer_arn = data.aws_lb.qa_application_lb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "No matching rule found"
-      status_code  = "404"
-    }
-  }
-}
-
 # Create listener rule for specific host
 resource "aws_lb_listener_rule" "qa_host_rule" {
-  listener_arn = aws_lb_listener.qa_lb_listener.arn
+  listener_arn = data.aws_lb_listener.existing_listener.arn
   priority     = 100
 
   action {
@@ -118,10 +108,10 @@ output "target_group_arn" {
 }
 
 output "listener_arn" {
-  value = aws_lb_listener.qa_lb_listener.arn
+  value = data.aws_lb_listener.existing_listener.arn
 }
 
 output "domain_endpoint" {
-  value = "http://${var.domain_name}"
+  value = "https://${var.domain_name}"
   description = "The endpoint URL for your service"
 }
