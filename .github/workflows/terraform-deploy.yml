@@ -78,7 +78,7 @@ jobs:
       with:
         aws-access-key-id: ${{ github.event.inputs.environment == 'production' && secrets.AWS_ACCESS_KEY_ID_PROD || secrets.AWS_ACCESS_KEY_ID_DEV }}
         aws-secret-access-key: ${{ github.event.inputs.environment == 'production' && secrets.AWS_SECRET_ACCESS_KEY_PROD || secrets.AWS_SECRET_ACCESS_KEY_DEV }}
-        aws-region: ap-southeast-1
+        aws-region: eu-north-1
 
     - name: Setup Environment Variables
       run: |
