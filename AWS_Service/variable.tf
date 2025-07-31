@@ -38,3 +38,7 @@ variable "target_group" {
 variable "tag_name_ecr" {
   type = string
 }
+variable "domain_name" {
+  type = string
+  description = "Domain name for the service (e.g., api.example.com)"
+}

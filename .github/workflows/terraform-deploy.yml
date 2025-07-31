@@ -53,6 +53,11 @@ on:
         required: true
         type: string
         default: 'test-api'
+      domain_name:
+        description: 'Domain Name (e.g., api.example.com)'
+        required: true
+        type: string
+        default: 'api.example.com'
 
 jobs:
   terraform:
@@ -110,6 +115,7 @@ jobs:
         container_port = "${{ github.event.inputs.container_port }}"
         target_group = "${{ github.event.inputs.target_group }}"
         tag_name_ecr = "${{ github.event.inputs.tag_name_ecr }}"
+        domain_name = "${{ github.event.inputs.domain_name }}"
         EOF
 
     - name: Terraform Init
