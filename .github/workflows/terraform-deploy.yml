@@ -22,22 +22,22 @@ on:
         description: 'Service Name'
         required: true
         type: string
-        default: 'test-api-service'
+        default: 'new-api-service'
       ecr_repository_name:
         description: 'ECR Repository Name'
         required: true
         type: string
-        default: 'test-api-images'
+        default: 'new-api-images'
       ecs_task_definition_name:
         description: 'ECS Task Definition Name'
         required: true
         type: string
-        default: 'test-api-td'
+        default: 'new-api-td'
       container_name:
         description: 'Container Name'
         required: true
         type: string
-        default: 'test-api-container'
+        default: 'new-api-container'
       container_port:
         description: 'Container Port'
         required: true
@@ -47,12 +47,12 @@ on:
         description: 'Target Group Name'
         required: true
         type: string
-        default: 'test-api'
+        default: 'new-api'
       tag_name_ecr:
         description: 'ECR Tag Name'
         required: true
         type: string
-        default: 'test-api'
+        default: 'new-api'
       domain_name:
         description: 'Domain Name (e.g., api.example.com)'
         required: true
@@ -102,8 +102,8 @@ jobs:
 
     - name: Create Terraform Variables File
       run: |
-        mkdir -p devops/AWS_Service
-        cat > devops/AWS_Service/terraform.tfvars << EOF
+        mkdir -p AWS_Service
+        cat > AWS_Service/terraform.tfvars << EOF
         qa_cluster = "${{ env.CLUSTER_NAME }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
         subnet_name = ${{ env.SUBNET_IDS }}
@@ -119,20 +119,20 @@ jobs:
         EOF
 
     - name: Terraform Init
-      working-directory: devops/AWS_Service
+      working-directory: AWS_Service
       run: terraform init
 
     - name: Terraform Plan
-      working-directory: devops/AWS_Service
+      working-directory: AWS_Service
       run: terraform plan -out=tfplan
 
     - name: Terraform Apply
-      working-directory: devops/AWS_Service
+      working-directory: AWS_Service
       run: terraform apply -auto-approve tfplan
 
     - name: Cleanup
       if: always()
-      working-directory: devops/AWS_Service
+      working-directory: AWS_Service
       run: |
         rm -f tfplan
         rm -f terraform.tfstate* 

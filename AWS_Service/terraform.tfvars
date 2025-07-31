@@ -26,12 +26,13 @@ qa_application_lb = "QA-applicaation-lb"
 # qa_application_lb = "development-application-lb"
 
 
-ECS_service_name = "test-api-service"
-ECR_repository_name = "test-api-images"
-ECS_task_defiantion_name = "test-api-td"
-container_name = "test-api-container"
+ECS_service_name = "new-api-service"
+ECR_repository_name = "new-api-images"
+ECS_task_defiantion_name = "new-api-td"
+container_name = "new-api-container"
 container_port = "9004"
-target_group = "test-api"
-tag_name_ecr = "test-api"
+target_group = "new-api"
+tag_name_ecr = "new-api"
+domain_name = "api.example.com"
 
 
