@@ -1,4 +1,4 @@
-name: Terraform Deploy
+name: Terraform Destroy
 
 on:
   workflow_dispatch:
@@ -19,54 +19,24 @@ on:
           - production
           - sandbox
       service_name:
-        description: 'Service Name'
+        description: 'Service Name to Destroy'
         required: true
         type: string
         default: 'new-api-service'
-      ecr_repository_name:
-        description: 'ECR Repository Name'
-        required: true
-        type: string
-        default: 'new-api-images'
-      ecs_task_definition_name:
-        description: 'ECS Task Definition Name'
-        required: true
-        type: string
-        default: 'new-api-td'
-      container_name:
-        description: 'Container Name'
-        required: true
-        type: string
-        default: 'new-api-container'
-      container_port:
-        description: 'Container Port'
-        required: true
-        type: string
-        default: '9004'
       target_group:
-        description: 'Target Group Name'
+        description: 'Target Group Name to Destroy'
         required: true
         type: string
         default: 'new-api'
-      tag_name_ecr:
-        description: 'ECR Tag Name'
-        required: true
-        type: string
-        default: 'new-api'
-      domain_name:
-        description: 'Domain Name (e.g., api.example.com)'
-        required: true
-        type: string
-        default: 'api.example.com'
       rule_name:
-        description: 'Listener Rule Name (e.g., new-api-rule)'
+        description: 'Listener Rule Name to Destroy'
         required: true
         type: string
         default: 'new-api-rule'
 
 jobs:
-  terraform:
-    name: 'Terraform Deploy'
+  terraform-destroy:
+    name: 'Terraform Destroy'
     runs-on: ubuntu-latest
     
     steps:
@@ -114,13 +84,13 @@ jobs:
         subnet_name = ${{ env.SUBNET_IDS }}
         qa_application_lb = "${{ env.LOAD_BALANCER }}"
         ECS_service_name = "${{ github.event.inputs.service_name }}"
-        ECR_repository_name = "${{ github.event.inputs.ecr_repository_name }}"
-        ECS_task_defiantion_name = "${{ github.event.inputs.ecs_task_definition_name }}"
-        container_name = "${{ github.event.inputs.container_name }}"
-        container_port = "${{ github.event.inputs.container_port }}"
+        ECR_repository_name = "${{ github.event.inputs.service_name }}-images"
+        ECS_task_defiantion_name = "${{ github.event.inputs.service_name }}-td"
+        container_name = "${{ github.event.inputs.service_name }}-container"
+        container_port = "9004"
         target_group = "${{ github.event.inputs.target_group }}"
-        tag_name_ecr = "${{ github.event.inputs.tag_name_ecr }}"
-        domain_name = "${{ github.event.inputs.domain_name }}"
+        tag_name_ecr = "${{ github.event.inputs.service_name }}"
+        domain_name = "api.example.com"
         rule_name = "${{ github.event.inputs.rule_name }}"
         EOF
 
@@ -128,30 +98,24 @@ jobs:
       working-directory: AWS_Service
       run: terraform init
 
-    - name: Terraform Plan
+    - name: Terraform Plan Destroy
       working-directory: AWS_Service
-      run: terraform plan -out=tfplan
+      run: terraform plan -destroy -out=destroy-plan
 
-    - name: Terraform Apply
+    - name: Terraform Destroy
       working-directory: AWS_Service
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve destroy-plan
 
-    - name: Deployment Success Notification
+    - name: Destroy Success Notification
       run: |
-        echo "✅ Deployment completed successfully!"
-        echo "Service: ${{ github.event.inputs.service_name }}"
-        echo "Domain: ${{ github.event.inputs.domain_name }}"
-        echo "Target Group: ${{ github.event.inputs.target_group }}"
-        echo ""
-        echo "⚠️  You have 2 minutes to destroy this deployment if needed."
-        echo "Go to Actions tab and run 'Terraform Destroy' workflow within 2 minutes."
-
-    - name: Wait for 2 minutes
-      run: sleep 120
+        echo "🗑️  Destruction completed successfully!"
+        echo "Destroyed Service: ${{ github.event.inputs.service_name }}"
+        echo "Destroyed Target Group: ${{ github.event.inputs.target_group }}"
+        echo "Destroyed Rule: ${{ github.event.inputs.rule_name }}"
 
     - name: Cleanup
       if: always()
       working-directory: AWS_Service
       run: |
-        rm -f tfplan
+        rm -f destroy-plan
         rm -f terraform.tfstate* 

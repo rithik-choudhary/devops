@@ -42,3 +42,7 @@ variable "domain_name" {
   type = string
   description = "Domain name for the service (e.g., api.example.com)"
 }
+variable "rule_name" {
+  type = string
+  description = "Name for the listener rule (e.g., new-api-rule)"
+}
