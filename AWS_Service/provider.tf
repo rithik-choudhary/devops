@@ -1,7 +1,7 @@
 provider "aws" {
-  region     = "xxx"
-  access_key = "xxxx"
-  secret_key = "xxx"
+  region = "ap-southeast-1"
+  # Credentials will be provided via environment variables in GitHub Actions
+  # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 }
 
 # provider "aws" {
