@@ -80,7 +80,7 @@ jobs:
           echo "SECURITY_GROUP=QA-application-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
           echo "LOAD_BALANCER=QA-applicaation-lb" >> $GITHUB_ENV
-        elif [ "${{ github.event.inputs.environment }}" = "dev" ]; then
+        elif [ "${{ github.event.inputs.environment }}" = "development" ]; then
           echo "CLUSTER_NAME=non-prod-application-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=dev-app-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
