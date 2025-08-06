@@ -32,7 +32,6 @@ ECS_task_defiantion_name = "test-api-td"
 container_name = "test-api-container"
 container_port = "9004"
 target_group = "test-api"
-tag_name_ecr = "test-api"
 domain_name = "api.example.com"
 rule_name = "test-api-rule"
 
