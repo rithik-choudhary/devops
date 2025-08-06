@@ -9,35 +9,27 @@ on:
         type: choice
         options:
           - development
-          - production
-      subnet_selection:
-        description: 'Select Subnet Configuration'
-        required: true
-        type: choice
-        options:
           - qa
-          - production
-          - sandbox
       service_name:
         description: 'Service Name'
         required: true
         type: string
-        default: 'new-api-service'
+        default: '@'
       ecr_repository_name:
         description: 'ECR Repository Name'
         required: true
         type: string
-        default: 'new-api-images'
+        default: '@-image'
       ecs_task_definition_name:
         description: 'ECS Task Definition Name'
         required: true
         type: string
-        default: 'new-api-td'
+        default: '@-td'
       container_name:
         description: 'Container Name'
         required: true
         type: string
-        default: 'new-api-container'
+        default: '@-container'
       container_port:
         description: 'Container Port'
         required: true
@@ -47,7 +39,7 @@ on:
         description: 'Target Group Name'
         required: true
         type: string
-        default: 'new-api'
+        default: '@-tg'
       domain_name:
         description: 'Domain Name (e.g., api.example.com)'
         required: true
@@ -57,7 +49,7 @@ on:
         description: 'Listener Rule Name (e.g., new-api-rule)'
         required: true
         type: string
-        default: 'new-api-rule'
+        default: '@-service'
 
 jobs:
   terraform:
@@ -76,28 +68,23 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ github.event.inputs.environment == 'production' && secrets.AWS_ACCESS_KEY_ID_PROD || secrets.AWS_ACCESS_KEY_ID_DEV }}
-        aws-secret-access-key: ${{ github.event.inputs.environment == 'production' && secrets.AWS_SECRET_ACCESS_KEY_PROD || secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
         aws-region: eu-north-1
 
     - name: Setup Environment Variables
       run: |
         # Set environment-specific variables based on subnet selection
-        if [ "${{ github.event.inputs.subnet_selection }}" = "qa" ]; then
+        if [ "${{ github.event.inputs.environment }}" = "qa" ]; then
           echo "CLUSTER_NAME=QA-application-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=QA-application-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
           echo "LOAD_BALANCER=QA-applicaation-lb" >> $GITHUB_ENV
-        elif [ "${{ github.event.inputs.subnet_selection }}" = "production" ]; then
-          echo "CLUSTER_NAME=production-apps-cluster" >> $GITHUB_ENV
-          echo "SECURITY_GROUP=prd-microservices-app-sg" >> $GITHUB_ENV
-          echo "SUBNET_IDS=[\"subnet-0f85ea7a436938a94\",\"subnet-076d2bcb696eb955c\"]" >> $GITHUB_ENV
-          echo "LOAD_BALANCER=prd-apps-lb" >> $GITHUB_ENV
-        elif [ "${{ github.event.inputs.subnet_selection }}" = "sandbox" ]; then
-          echo "CLUSTER_NAME=sandbox-apps-cluster" >> $GITHUB_ENV
-          echo "SECURITY_GROUP=sandbox-microservices-app-sg" >> $GITHUB_ENV
-          echo "SUBNET_IDS=[\"subnet-0a2b010ed79ff4e2a\",\"subnet-07551380cf98c3388\"]" >> $GITHUB_ENV
-          echo "LOAD_BALANCER=sandbox-apps-lb" >> $GITHUB_ENV
+        elif [ "${{ github.event.inputs.environment }}" = "dev" ]; then
+          echo "CLUSTER_NAME=non-prod-application-cluster" >> $GITHUB_ENV
+          echo "SECURITY_GROUP=dev-app-sg" >> $GITHUB_ENV
+          echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
+          echo "LOAD_BALANCER=development-application-lb" >> $GITHUB_ENV
         fi
 
     - name: Create Terraform Variables File
@@ -114,7 +101,6 @@ jobs:
         container_name = "${{ github.event.inputs.container_name }}"
         container_port = "${{ github.event.inputs.container_port }}"
         target_group = "${{ github.event.inputs.target_group }}"
-        tag_name_ecr = "${{ github.event.inputs.tag_name_ecr }}"
         domain_name = "${{ github.event.inputs.domain_name }}"
         rule_name = "${{ github.event.inputs.rule_name }}"
         EOF
