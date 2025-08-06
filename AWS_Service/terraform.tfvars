@@ -13,7 +13,7 @@ qa_security_group = "QA-application-sg"
 
 
 
-
+listener_rule_priority = 100
 subnet_name = [ "subnet-0f85ea7a436938a94","subnet-076d2bcb696eb955c" ] # prd
 # subnet_name = [ "subnet-0133e140dad000778","subnet-0573bc07a10596e57" ] # qa
 # subnet_name = [ "subnet-0133e140dad000778","subnet-0573bc07a10596e57" ] # qa
