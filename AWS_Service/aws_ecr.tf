@@ -4,11 +4,6 @@ resource "aws_ecr_repository" "ECR_Repo" {
   image_scanning_configuration {
     scan_on_push = true
   }
-
-  tags = {
-    Name        = var.tag_name_ecr
-    Environment = "test"
-  }
 }
 
 output "ecr_repository_url" {
