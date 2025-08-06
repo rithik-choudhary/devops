@@ -55,7 +55,7 @@ resource "aws_lb_target_group" "qa_target_groups" {
 # Create listener rule for specific host
 resource "aws_lb_listener_rule" "qa_host_rule" {
   listener_arn = data.aws_lb_listener.existing_listener.arn
-  priority     = number  # Let AWS automatically assign the next available priority
+  priority = var.listener_rule_priority  # Let AWS automatically assign the next available priority
 
   action {
     type             = "forward"
