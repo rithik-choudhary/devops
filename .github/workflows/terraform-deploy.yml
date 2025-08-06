@@ -48,11 +48,6 @@ on:
         required: true
         type: string
         default: 'new-api'
-      tag_name_ecr:
-        description: 'ECR Tag Name'
-        required: true
-        type: string
-        default: 'new-api'
       domain_name:
         description: 'Domain Name (e.g., api.example.com)'
         required: true
