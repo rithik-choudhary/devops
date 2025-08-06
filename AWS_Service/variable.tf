@@ -43,3 +43,8 @@ variable "rule_name" {
   type = string
   description = "Name for the listener rule (e.g., new-api-rule)"
 }
+variable "listener_rule_priority" {
+  type        = number
+  description = "Priority for the listener rule (1-50000)"
+}
+
