@@ -9,7 +9,7 @@ on:
         type: choice
         options:
           - sandbox
-          - production
+          - PROD
       service_name:
         description: 'Service Name'
         required: true
