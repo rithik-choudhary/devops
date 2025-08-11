@@ -1,0 +1,146 @@
+name: Terraform prod Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select Environment'
+        required: true
+        type: choice
+        options:
+          - sandbox
+          - production
+      service_name:
+        description: 'Service Name'
+        required: true
+        type: string
+        default: '@'
+      ecr_repository_name:
+        description: 'ECR Repository Name'
+        required: true
+        type: string
+        default: '@-image'
+      ecs_task_definition_name:
+        description: 'ECS Task Definition Name'
+        required: true
+        type: string
+        default: '@-td'
+      container_name:
+        description: 'Container Name'
+        required: true
+        type: string
+        default: '@-container'
+      container_port:
+        description: 'Container Port'
+        required: true
+        type: string
+        default: '9004'
+      target_group:
+        description: 'Target Group Name'
+        required: true
+        type: string
+        default: '@-tg'
+      listener_rule_priority:
+        description: 'Listener Rule Priority (1-50000)'
+        required: true
+        type: string
+        default: '100'
+      domain_name:
+        description: 'Domain Name (e.g., api.example.com)'
+        required: true
+        type: string
+        default: 'api.example.com'
+      rule_name:
+        description: 'Listener Rule Name (e.g., new-api-rule)'
+        required: true
+        type: string
+        default: '@-service'
+
+jobs:
+  terraform:
+    name: 'Terraform Deploy'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.5.0"
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PRD }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PRD }}
+        aws-region: ap-southeast-1  
+
+    - name: Setup Environment Variables
+      run: |
+        # Set environment-specific variables based on subnet selection
+        if [ "${{ github.event.inputs.environment }}" = "sandbox" ]; then
+          echo "CLUSTER_NAME=sandbox-apps-cluster" >> $GITHUB_ENV
+          echo "SECURITY_GROUP=sandbox-microservices-app-sg" >> $GITHUB_ENV
+          echo "SUBNET_IDS=[\"subnet-0a2b010ed79ff4e2a\",\"subnet-07551380cf98c3388\"]" >> $GITHUB_ENV
+          echo "LOAD_BALANCER=sandbox-apps-lb" >> $GITHUB_ENV
+          
+        elif [ "${{ github.event.inputs.environment }}" = "production" ]; then
+          echo "CLUSTER_NAME=production-apps-cluster" >> $GITHUB_ENV
+          echo "SECURITY_GROUP=prd-microservices-app-sg" >> $GITHUB_ENV
+          echo "SUBNET_IDS=[\"subnet-0f85ea7a436938a94\",\"subnet-076d2bcb696eb955c\"]" >> $GITHUB_ENV
+          echo "LOAD_BALANCER=prd-apps-lb" >> $GITHUB_ENV
+        
+        fi
+
+    - name: Create Terraform Variables File
+      run: |
+        mkdir -p AWS_Service
+        cat > AWS_Service/terraform.tfvars << EOF
+        qa_cluster = "${{ env.CLUSTER_NAME }}"
+        qa_security_group = "${{ env.SECURITY_GROUP }}"
+        subnet_name = ${{ env.SUBNET_IDS }}
+        qa_application_lb = "${{ env.LOAD_BALANCER }}"
+        listener_rule_priority = ${{ github.event.inputs.listener_rule_priority }}
+        ECS_service_name = "${{ github.event.inputs.service_name }}"
+        ECR_repository_name = "${{ github.event.inputs.ecr_repository_name }}"
+        ECS_task_defiantion_name = "${{ github.event.inputs.ecs_task_definition_name }}"
+        container_name = "${{ github.event.inputs.container_name }}"
+        container_port = "${{ github.event.inputs.container_port }}"
+        target_group = "${{ github.event.inputs.target_group }}"
+        domain_name = "${{ github.event.inputs.domain_name }}"
+        rule_name = "${{ github.event.inputs.rule_name }}"
+        EOF
+
+    - name: Terraform Init
+      working-directory: AWS_Service
+      run: terraform init
+
+    - name: Terraform Plan
+      working-directory: AWS_Service
+      run: terraform plan -out=tfplan
+
+    - name: Terraform Apply
+      working-directory: AWS_Service
+      run: terraform apply -auto-approve tfplan
+
+    - name: Deployment Success Notification
+      run: |
+        echo "✅ Deployment completed successfully!"
+        echo "Service: ${{ github.event.inputs.service_name }}"
+        echo "Domain: ${{ github.event.inputs.domain_name }}"
+        echo "Target Group: ${{ github.event.inputs.target_group }}"
+        echo ""
+        echo "⚠️  You have 2 minutes to destroy this deployment if needed."
+        echo "Go to Actions tab and run 'Terraform Destroy' workflow within 2 minutes."
+
+    - name: Wait for 2 minutes
+      run: sleep 120
+
+    - name: Cleanup
+      if: always()
+      working-directory: AWS_Service
+      run: |
+        rm -f tfplan
+        rm -f terraform.tfstate* 
