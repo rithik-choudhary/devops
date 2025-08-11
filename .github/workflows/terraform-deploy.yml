@@ -85,13 +85,14 @@ jobs:
           echo "SECURITY_GROUP=QA-application-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
           echo "LOAD_BALANCER=QA-applicaation-lb" >> $GITHUB_ENV
+          echo "region=eu-north-1" >> $GITHUB_ENV    
           
         elif [ "${{ github.event.inputs.environment }}" = "development" ]; then
           echo "CLUSTER_NAME=non-prod-application-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=dev-app-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
           echo "LOAD_BALANCER=development-application-lb" >> $GITHUB_ENV
-        
+          echo "region=eu-north-1" >> $GITHUB_ENV    
         fi
 
     - name: Create Terraform Variables File
@@ -99,6 +100,7 @@ jobs:
         mkdir -p AWS_Service
         cat > AWS_Service/terraform.tfvars << EOF
         qa_cluster = "${{ env.CLUSTER_NAME }}"
+        region = "${{ env.region }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
         subnet_name = ${{ env.SUBNET_IDS }}
         qa_application_lb = "${{ env.LOAD_BALANCER }}"
