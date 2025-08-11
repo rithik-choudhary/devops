@@ -8,8 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - sandbox
-          - PROD
+          - dev
+          - qa
       service_name:
         description: 'Service Name'
         required: true
@@ -40,22 +40,7 @@ on:
         required: true
         type: string
         default: '@-tg'
-      listener_rule_priority:
-        description: 'Listener Rule Priority (1-50000)'
-        required: true
-        type: string
-        default: '100'
-      domain_name:
-        description: 'Domain Name (e.g., api.example.com)'
-        required: true
-        type: string
-        default: 'api.example.com'
-      rule_name:
-        description: 'Listener Rule Name (e.g., new-api-rule)'
-        required: true
-        type: string
-        default: '@-service'
-
+        
 jobs:
   terraform:
     name: 'Terraform Deploy'
@@ -80,17 +65,15 @@ jobs:
     - name: Setup Environment Variables
       run: |
         # Set environment-specific variables based on subnet selection
-        if [ "${{ github.event.inputs.environment }}" = "PROD" ]; then
-          echo "CLUSTER_NAME=production-apps-cluster" >> $GITHUB_ENV
-          echo "SECURITY_GROUP=prd-dashboard-sg" >> $GITHUB_ENV
-          echo "SUBNET_IDS=[\"subnet-0f85ea7a436938a94\",\"subnet-076d2bcb696eb955c\"]" >> $GITHUB_ENV
-          echo "LOAD_BALANCER=prd-apps-lb" >> $GITHUB_ENV
+        if [ "${{ github.event.inputs.environment }}" = "dev" ]; then
+          echo "CLUSTER_NAME=non-prod-workers-cluster" >> $GITHUB_ENV
+          echo "SECURITY_GROUP=dev-worker-sg" >> $GITHUB_ENV
+          echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
           
-        elif [ "${{ github.event.inputs.environment }}" = "sandbox" ]; then
-          echo "CLUSTER_NAME=sandbox-apps-cluster" >> $GITHUB_ENV
-          echo "SECURITY_GROUP=sandbox-microservices-app-sg" >> $GITHUB_ENV
-          echo "SUBNET_IDS=[\"subnet-0a2b010ed79ff4e2a\",\"subnet-07551380cf98c3388\"]" >> $GITHUB_ENV
-          echo "LOAD_BALANCER=sandbox-apps-lb" >> $GITHUB_ENV
+        elif [ "${{ github.event.inputs.environment }}" = "qa" ]; then
+          echo "CLUSTER_NAME=qa-worker-cluster" >> $GITHUB_ENV
+          echo "SECURITY_GROUP=qa-worker-sg" >> $GITHUB_ENV
+          echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
         
         fi
 
@@ -101,16 +84,12 @@ jobs:
         qa_cluster = "${{ env.CLUSTER_NAME }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
         subnet_name = ${{ env.SUBNET_IDS }}
-        qa_application_lb = "${{ env.LOAD_BALANCER }}"
-        listener_rule_priority = ${{ github.event.inputs.listener_rule_priority }}
         ECS_service_name = "${{ github.event.inputs.service_name }}"
         ECR_repository_name = "${{ github.event.inputs.ecr_repository_name }}"
         ECS_task_defiantion_name = "${{ github.event.inputs.ecs_task_definition_name }}"
         container_name = "${{ github.event.inputs.container_name }}"
         container_port = "${{ github.event.inputs.container_port }}"
-        target_group = "${{ github.event.inputs.target_group }}"
-        domain_name = "${{ github.event.inputs.domain_name }}"
-        rule_name = "${{ github.event.inputs.rule_name }}"
+        target_group = "${{ github.event.inputs.target_group }}
         EOF
 
     - name: Terraform Init
