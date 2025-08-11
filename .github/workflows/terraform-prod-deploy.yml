@@ -86,17 +86,14 @@ jobs:
           echo "SUBNET_IDS=[\"subnet-0a2b010ed79ff4e2a\",\"subnet-07551380cf98c3388\"]" >> $GITHUB_ENV
           echo "LOAD_BALANCER=sandbox-apps-lb" >> $GITHUB_ENV
           echo "region=ap-southeast-1" >> $GITHUB_ENV
-          echo "VPC_ID=vpc-00e2a1df1a0dbdb32" >> $GITHUB_ENV
+
           
         elif [ "${{ github.event.inputs.environment }}" = "production" ]; then
           echo "CLUSTER_NAME=production-apps-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=prd-microservices-app-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0f85ea7a436938a94\",\"subnet-076d2bcb696eb955c\"]" >> $GITHUB_ENV
           echo "LOAD_BALANCER=prd-apps-lb" >> $GITHUB_ENV
-          echo "region=ap-southeast-1" >> $GITHUB_ENV
-          echo "VPC_ID=vpc-0d863ddb5168ad19a" >> $GITHUB_ENV
-          
-        
+          echo "region=ap-southeast-1" >> $GITHUB_ENV        
         fi
 
     - name: Create Terraform Variables File
@@ -104,7 +101,6 @@ jobs:
         mkdir -p AWS_Service
         cat > AWS_Service/terraform.tfvars << EOF
         region="${{ env.region }}"
-        vpc="${{ env.VPC_ID }}"
         qa_cluster = "${{ env.CLUSTER_NAME }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
         subnet_name = ${{ env.SUBNET_IDS }}
