@@ -1,4 +1,4 @@
-name: Terraform cluster-worker Deploy
+name: Terraform worker-cluster Deploy
 
 on:
   workflow_dispatch:
@@ -40,7 +40,7 @@ on:
         required: true
         type: string
         default: '@-tg'
-        
+    
 jobs:
   terraform:
     name: 'Terraform Deploy'
@@ -60,7 +60,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
-        aws-region: eu-north-1
+        aws-region: eu-north-1  
 
     - name: Setup Environment Variables
       run: |
@@ -69,27 +69,34 @@ jobs:
           echo "CLUSTER_NAME=non-prod-workers-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=dev-worker-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
+          echo "region=eu-north-1" >> $GITHUB_ENV
+
           
         elif [ "${{ github.event.inputs.environment }}" = "qa" ]; then
           echo "CLUSTER_NAME=qa-worker-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=qa-worker-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
-        
+          echo "region=ap-southeast-1" >> $GITHUB_ENV        
         fi
 
     - name: Create Terraform Variables File
       run: |
         mkdir -p AWS_Service
         cat > AWS_Service/terraform.tfvars << EOF
+        region="${{ env.region }}"
         qa_cluster = "${{ env.CLUSTER_NAME }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
         subnet_name = ${{ env.SUBNET_IDS }}
+        qa_application_lb = "${{ env.LOAD_BALANCER }}"
+        listener_rule_priority = ${{ github.event.inputs.listener_rule_priority }}
         ECS_service_name = "${{ github.event.inputs.service_name }}"
         ECR_repository_name = "${{ github.event.inputs.ecr_repository_name }}"
         ECS_task_defiantion_name = "${{ github.event.inputs.ecs_task_definition_name }}"
         container_name = "${{ github.event.inputs.container_name }}"
         container_port = "${{ github.event.inputs.container_port }}"
         target_group = "${{ github.event.inputs.target_group }}"
+        domain_name = "${{ github.event.inputs.domain_name }}"
+        rule_name = "${{ github.event.inputs.rule_name }}"
         EOF
 
     - name: Terraform Init
