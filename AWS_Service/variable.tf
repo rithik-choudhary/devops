@@ -14,9 +14,7 @@ variable "ECS_task_defiantion_name" {
 variable "qa_cluster" {
     type = string
 }
-variable "vpc" {
-    type = string
-}
+
 variable "region" {
     type = string
 }
