@@ -9,7 +9,7 @@ on:
         type: choice
         options:
           - sandbox
-          - PROD
+          - PRD
       service_name:
         description: 'Service Name'
         required: true
@@ -80,7 +80,7 @@ jobs:
     - name: Setup Environment Variables
       run: |
         # Set environment-specific variables based on subnet selection
-        if [ "${{ github.event.inputs.environment }}" = "PROD" ]; then
+        if [ "${{ github.event.inputs.environment }}" = "PRD" ]; then
           echo "CLUSTER_NAME=production-apps-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=prd-dashboard-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0f85ea7a436938a94\",\"subnet-076d2bcb696eb955c\"]" >> $GITHUB_ENV
