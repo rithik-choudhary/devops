@@ -89,7 +89,7 @@ jobs:
         ECS_task_defiantion_name = "${{ github.event.inputs.ecs_task_definition_name }}"
         container_name = "${{ github.event.inputs.container_name }}"
         container_port = "${{ github.event.inputs.container_port }}"
-        target_group = "${{ github.event.inputs.target_group }}
+        target_group = "${{ github.event.inputs.target_group }}"
         EOF
 
     - name: Terraform Init
