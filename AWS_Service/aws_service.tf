@@ -7,10 +7,6 @@ data "aws_security_group" "qa_app_sg" {
     name   = "group-name"
     values = [var.qa_security_group]
   }
-  filter {
-      name   = "vpc"
-      values = [var.vpc]
-    }
 }
 
 data "aws_subnet" "private1" {
