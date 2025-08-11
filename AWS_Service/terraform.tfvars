@@ -1,12 +1,12 @@
 # qa_cluster = "production-apps-cluster"
 # qa_cluster = "non-prod-application-cluster"
 # qa_cluster = "sandbox-apps-cluster"
-qa_cluster = "QA-application-cluster"
+qa_cluster = ""
 
 # qa_security_group = "prd-dashboard-sg"
 # qa_security_group = "dev-app-sg"
 # qa_security_group = "prd-microservices-app-sg" #prd
-qa_security_group = "QA-application-sg"
+qa_security_group = ""
 # qa_security_group = "sandbox-payments-microservice"
 # qa_security_group = "sandbox-microservices-app-sg"
 
