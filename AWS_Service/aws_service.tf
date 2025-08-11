@@ -1,5 +1,5 @@
 data "aws_ecs_cluster" "qa_cluster" {
-  cluster_name = var.qa_cluster# Name of your existing ECS cluster
+  cluster_name = var.qa_cluster
 }
 
 data "aws_security_group" "qa_app_sg" {
@@ -7,6 +7,10 @@ data "aws_security_group" "qa_app_sg" {
     name   = "group-name"
     values = [var.qa_security_group]
   }
+  filter {
+      name   = "vpc"
+      values = [var.vpc]
+    }
 }
 
 data "aws_subnet" "private1" {
