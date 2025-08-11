@@ -31,7 +31,7 @@ resource "aws_ecs_task_definition" "ECS_task_1" {
         options = {
           # "awslogs-group"         = "/ecs/${local.task_family}"
           "awslogs-group" = "/ecs/${var.ECS_task_defiantion_name}"
-          "awslogs-region"        = "eu-north-1"
+          "awslogs-region"        = var.region
           "awslogs-stream-prefix" = "ecs"
         }
       }
