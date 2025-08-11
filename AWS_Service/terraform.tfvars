@@ -34,5 +34,5 @@ container_port = "9004"
 target_group = "test-api"
 domain_name = "api.example.com"
 rule_name = "test-api-rule"
-
+region = "eu-north-1"
 
