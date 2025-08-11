@@ -1,4 +1,4 @@
-name: Terraform worker 
+name: Terraform prod
 
 on:
   workflow_dispatch:
