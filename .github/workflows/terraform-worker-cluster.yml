@@ -1,4 +1,4 @@
-name: Terraform Dev Deploy
+name: Terraform-Worker-Cluster-Deploy
 
 on:
   workflow_dispatch:
@@ -90,7 +90,7 @@ jobs:
           echo "CLUSTER_NAME=qa-worker-cluster" >> $GITHUB_ENV
           echo "SECURITY_GROUP=qa-worker-sg" >> $GITHUB_ENV
           echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
-          echo "region=ap-southeast-1" >> $GITHUB_ENV        
+          echo "region=eu-north-1" >> $GITHUB_ENV        
         fi
 
     - name: Create Terraform Variables File
