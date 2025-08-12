@@ -1,4 +1,4 @@
-name: Terraform-Worker-Cluster-Deploy
+name: Terraform Dev Deploy
 
 on:
   workflow_dispatch:
@@ -101,6 +101,7 @@ jobs:
         region = "${{ env.region }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
         subnet_name = ${{ env.SUBNET_IDS }}
+        qa_application_lb = "${{ env.LOAD_BALANCER }}"
         listener_rule_priority = ${{ github.event.inputs.listener_rule_priority }}
         ECS_service_name = "${{ github.event.inputs.service_name }}"
         ECR_repository_name = "${{ github.event.inputs.ecr_repository_name }}"
