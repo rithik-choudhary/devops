@@ -1,4 +1,4 @@
-name: Terraform-worker-cluster-Deploy
+name: Terraform-Worker-Cluster-Deploy
 
 on:
   workflow_dispatch:
