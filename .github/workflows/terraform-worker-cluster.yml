@@ -40,21 +40,6 @@ on:
         required: true
         type: string
         default: '@-tg'
-      listener_rule_priority:
-        description: 'Listener Rule Priority (1-50000)'
-        required: true
-        type: string
-        default: '100'
-      domain_name:
-        description: 'Domain Name (e.g., api.example.com)'
-        required: true
-        type: string
-        default: 'api.example.com'
-      rule_name:
-        description: 'Listener Rule Name (e.g., new-api-rule)'
-        required: true
-        type: string
-        default: '@-service'
 
 jobs:
   terraform:
