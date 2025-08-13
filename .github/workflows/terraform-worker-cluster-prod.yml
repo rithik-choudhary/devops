@@ -89,15 +89,15 @@ jobs:
         EOF
 
     - name: Terraform Init
-      working-directory: AWS_Service
+      working-directory: Worker-Cluster-Service
       run: terraform init
 
     - name: Terraform Plan
-      working-directory: AWS_Service
+      working-directory: Worker-Cluster-Service
       run: terraform plan -out=tfplan
 
     - name: Terraform Apply
-      working-directory: AWS_Service
+      working-directory: Worker-Cluster-Service
       run: terraform apply -auto-approve tfplan
 
     - name: Deployment Success Notification
@@ -113,7 +113,7 @@ jobs:
 
     - name: Cleanup
       if: always()
-      working-directory: AWS_Service
+      working-directory: Worker-Cluster-Service
       run: |
         rm -f tfplan
         rm -f terraform.tfstate*
