@@ -24,8 +24,8 @@ variable "qa_security_group" {
 variable "subnet_name" {
     type = list(string)
 }
-variable "qa_application_lb" {
-  type = string
+# variable "qa_application_lb" {
+#  type = string
 }
 variable "ECS_service_name" {
   type = string
