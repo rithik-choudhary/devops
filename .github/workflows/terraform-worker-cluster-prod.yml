@@ -76,7 +76,7 @@ jobs:
     - name: Create Terraform Variables File
       run: |
         mkdir -p Worker-Cluster-Service
-        cat > Worker-Cluster-Service/Terraform.tfvars << EOF
+        cat > Worker-Cluster-Service/terraform.tfvars << EOF
         qa_cluster = "${{ env.CLUSTER_NAME }}"
         region = "${{ env.region }}"
         qa_security_group = "${{ env.SECURITY_GROUP }}"
