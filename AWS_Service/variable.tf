@@ -7,7 +7,7 @@ variable "ECS_task_defiantion_name" {
 # locals {
 #   # task_family = "devops-td"
 #   task_family = "${aws_ecr_repository.ECR_Repo.name}-td"
-
+#
 #   log_group   = "/ecs/${local.task_family}"
 # }
 
@@ -36,9 +36,9 @@ variable "container_name" {
 variable "container_port" {
     type = number
 }
-variable "target_group" {
-    type = string  
-}
+# variable "target_group" {
+#     type = string  
+# }
 # variable "domain_name" {
 #   type = string
 #   description = "Domain name for the service (e.g., api.example.com)"
