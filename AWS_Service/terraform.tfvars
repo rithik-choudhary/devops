@@ -10,27 +10,29 @@ qa_security_group = ""
 # qa_security_group = "sandbox-payments-microservice"
 # qa_security_group = "sandbox-microservices-app-sg"
 
-# listener_rule_priority = 100
 
+
+
+listener_rule_priority = 100
 subnet_name = [ "subnet-0f85ea7a436938a94","subnet-076d2bcb696eb955c" ] # prd
 # subnet_name = [ "subnet-0133e140dad000778","subnet-0573bc07a10596e57" ] # qa
 # subnet_name = [ "subnet-0133e140dad000778","subnet-0573bc07a10596e57" ] # qa
 # subnet_name = [ "subnet-0a2b010ed79ff4e2a","subnet-07551380cf98c3388" ] # sandbox
 
+
 # qa_application_lb = "prd-apps-lb"
-# qa_application_lb = "QA-applicaation-lb"
+qa_application_lb = "QA-applicaation-lb"
 # qa_application_lb = "sandbox-apps-lb"
 # qa_application_lb = "development-application-lb"
+
 
 ECS_service_name = "test-api-service"
 ECR_repository_name = "test-api-images"
 ECS_task_defiantion_name = "test-api-td"
 container_name = "test-api-container"
 container_port = "9004"
-
-# target_group = "test-api"
-# domain_name = "api.example.com"
-# rule_name = "test-api-rule"
-
+target_group = "test-api"
+domain_name = "api.example.com"
+rule_name = "test-api-rule"
 region = "eu-north-1"
 
