@@ -1,0 +1,119 @@
+name: Terraform-Worker-Cluster-Prod-Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select Environment'
+        required: true
+        type: choice
+        options:
+          - prod
+          - sandbox
+      service_name:
+        description: 'Service Name'
+        required: true
+        type: string
+        default: '@'
+      ecr_repository_name:
+        description: 'ECR Repository Name'
+        required: true
+        type: string
+        default: '@-image'
+      ecs_task_definition_name:
+        description: 'ECS Task Definition Name'
+        required: true
+        type: string
+        default: '@-td'
+      container_name:
+        description: 'Container Name'
+        required: true
+        type: string
+        default: '@-container'
+      container_port:
+        description: 'Container Port'
+        required: true
+        type: string
+        default: '9004'
+
+jobs:
+  terraform:
+    name: 'Terraform Deploy'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.5.0"
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+        aws-region: eu-north-1
+
+    - name: Setup Environment Variables
+      run: |
+        # Set environment-specific variables based on subnet selection
+        if [ "${{ github.event.inputs.environment }}" = "dev" ]; then
+          echo "CLUSTER_NAME=non-prod-workers-cluster" >> $GITHUB_ENV
+          echo "SECURITY_GROUP=dev-worker-sg" >> $GITHUB_ENV
+          echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
+          echo "region=eu-north-1" >> $GITHUB_ENV
+          
+        elif [ "${{ github.event.inputs.environment }}" = "qa" ]; then
+          echo "CLUSTER_NAME=qa-worker-cluster" >> $GITHUB_ENV
+          echo "SECURITY_GROUP=qa-worker-sg" >> $GITHUB_ENV
+          echo "SUBNET_IDS=[\"subnet-0133e140dad000778\",\"subnet-0573bc07a10596e57\"]" >> $GITHUB_ENV
+          echo "region=eu-north-1" >> $GITHUB_ENV        
+        fi
+
+    - name: Create Terraform Variables File
+      run: |
+        mkdir -p AWS_Service
+        cat > AWS_Service/terraform.tfvars << EOF
+        qa_cluster = "${{ env.CLUSTER_NAME }}"
+        region = "${{ env.region }}"
+        qa_security_group = "${{ env.SECURITY_GROUP }}"
+        subnet_name = ${{ env.SUBNET_IDS }}
+        ECS_service_name = "${{ github.event.inputs.service_name }}"
+        ECR_repository_name = "${{ github.event.inputs.ecr_repository_name }}"
+        ECS_task_defiantion_name = "${{ github.event.inputs.ecs_task_definition_name }}"
+        container_name = "${{ github.event.inputs.container_name }}"
+        container_port = "${{ github.event.inputs.container_port }}"
+        EOF
+
+    - name: Terraform Init
+      working-directory: AWS_Service
+      run: terraform init
+
+    - name: Terraform Plan
+      working-directory: AWS_Service
+      run: terraform plan -out=tfplan
+
+    - name: Terraform Apply
+      working-directory: AWS_Service
+      run: terraform apply -auto-approve tfplan
+
+    - name: Deployment Success Notification
+      run: |
+        echo "✅ Deployment completed successfully!"
+        echo "Service: ${{ github.event.inputs.service_name }}"
+        echo ""
+        echo "⚠️  You have 2 minutes to destroy this deployment if needed."
+        echo "Go to Actions tab and run 'Terraform Destroy' workflow within 2 minutes."
+
+    - name: Wait for 2 minutes
+      run: sleep 120
+
+    - name: Cleanup
+      if: always()
+      working-directory: AWS_Service
+      run: |
+        rm -f tfplan
+        rm -f terraform.tfstate*
